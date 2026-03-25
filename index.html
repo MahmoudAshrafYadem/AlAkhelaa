@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>"الاخلاء": قول فكرتك واحنا معاك</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 15px; }
+        .app-card { max-width: 450px; margin: auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .logo { display: block; margin: 0 auto 15px; width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff; }
+        h2 { text-align: center; color: #1c1e21; font-size: 1.5rem; margin-bottom: 20px; }
+        label { font-weight: bold; color: #4b4f56; display: block; margin-top: 15px; }
+        input, textarea { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; background: #f9fbff; }
+        button { width: 100%; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 10px; font-size: 18px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:active { transform: scale(0.98); }
+        .success-banner { display: none; background: #d4edda; color: #155724; padding: 15px; border-radius: 10px; text-align: center; margin-top: 20px; font-weight: bold; }
+        .ideas-section { margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px; }
+        .idea-item { background: #fff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .idea-item b { color: #007bff; }
+    </style>
+</head>
+<body>
+
+<div class="app-card">
+    <img src="logo.png" alt="Logo" class="logo">
+    <h2>"الاخلاء": قول فكرتك واحنا معاك</h2>
+
+    <form id="ideaForm">
+        <label>الاسم</label>
+        <input type="text" id="userName" placeholder="اكتب اسمك هنا..." required>
+
+        <label>الفكرة</label>
+        <textarea id="userIdea" rows="3" placeholder="قولنا الفكرة ببساطة..." required></textarea>
+
+        <label>إنت شايف إزاي نقدر ننفذها؟</label>
+        <textarea id="userExec" rows="3" placeholder="خطوات التنفيذ..." required></textarea>
+
+        <button type="submit" id="btnText">إبعت الفكرة</button>
+    </form>
+
+    <div id="msg" class="success-banner">شكراً لمشاركتك! ❤️</div>
+
+    <div class="ideas-section">
+        <h3 style="text-align: center;">أفكار الفريق</h3>
+        <div id="displayArea">جاري تحميل الأفكار...</div>
+    </div>
+</div>
+
+<script>
+    const url = "YOUR_SCRIPT_URL_HERE"; // <--- Paste your URL here
+
+    // Send Data
+    document.getElementById('ideaForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('btnText').innerText = "بنشحن الفكرة...";
+        
+        const formData = new FormData();
+        formData.append('الاسم', document.getElementById('userName').value);
+        formData.append('الفكرة', document.getElementById('userIdea').value);
+        formData.append('التنفيذ', document.getElementById('userExec').value);
+
+        fetch(url, { method: 'POST', body: formData, mode: 'no-cors'})
+        .then(() => {
+            document.getElementById('ideaForm').reset();
+            document.getElementById('btnText').innerText = "إبعت الفكرة";
+            document.getElementById('msg').style.display = 'block';
+            setTimeout(() => { document.getElementById('msg').style.display = 'none'; }, 3000);
+            loadIdeas();
+        });
+    });
+
+    // Load Data
+    function loadIdeas() {
+        fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            let html = "";
+            data.reverse().forEach(item => {
+                html += `<div class="idea-item">
+                            <p><b>الاسم:</b> ${item.الاسم}</p>
+                            <p><b>الفكرة:</b> ${item.الفكرة}</p>
+                            <p><b>التنفيذ:</b> ${item.التنفيذ}</p>
+                         </div>`;
+            });
+            document.getElementById('displayArea').innerHTML = html;
+        });
+    }
+    loadIdeas();
+</script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
+
+</body>
+</html>
